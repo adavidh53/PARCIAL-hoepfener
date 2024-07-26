@@ -8,7 +8,7 @@ private Joypad joypad;
 public void setup (){
   size(600, 600);
   personaje = new Personaje();
-  personaje.set_ubicacion(new PVector(100, 200));
+  personaje.set_ubicacion(new PVector(10, 450));
   joypad= new Joypad();
 }
 

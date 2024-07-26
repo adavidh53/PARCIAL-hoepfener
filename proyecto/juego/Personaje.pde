@@ -1,28 +1,15 @@
-class Personaje {
-  private PVector ubicacion;
-  private PVector velocidad;
+class Personaje extends Gameobjetc {
+   private PVector velocidad;
+   private boolean saltando;
+   
+   
+   
+   
   
-  
-  
-  
-  
-  private boolean saltando;
-  
-  Personaje(){
-   this.ubicacion= new PVector(0,0);
+  Personaje(PVector ubicacion, PImage imagen, PVector tamaño){
+   super(ubicacion, imagen, tamaño);
    this.velocidad= new PVector(0,0);
    this.saltando= false;
-  }
-  
-  
-  
-  
-  
-  
-  public void dibujar(){
-    
-    fill(#FF0303);
-    rect(this.ubicacion.x, this.ubicacion.y, 20,60);
   }
   
   public void mover( int vertical){
@@ -58,12 +45,19 @@ class Personaje {
      this.saltando=false;
     }
   }
+  
+    public void dibujar(){
+    
+    fill(#FF0303);
+    rect(this.ubicacion.x, this.ubicacion.y, this.tamaño.x,this,tamaño.y);
+  }
+  
   public void set_ubicacion(PVector ubicacion){
    this.ubicacion=ubicacion; 
   }
   
    public void set_velocidad(PVector velocidad){
-   this.ubicacion=ubicacion; 
+   this.velocidad=velocidad; 
   }
   
   
