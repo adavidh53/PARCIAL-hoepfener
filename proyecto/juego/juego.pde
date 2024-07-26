@@ -6,7 +6,9 @@ private Joypad joypad;
 
 
 ArrayList<Gameobjetc> gameobjetcs;
-PImage img_silla, img_mesa, img_armario;
+PImage img_silla, img_mesa;
+PImage[] img_corre;
+PImage[] img_salto;
 Spawnerobstaculos spawner;
 
 
@@ -17,17 +19,37 @@ public void setup () {
   // Cargar imágenes spwaner
   img_silla=loadImage("silla.png");
   img_mesa=loadImage("mesa.png");
-  //img_armario=loadImage("armario.png");
+  
+  // Cargar sprites para correr
+  img_corre = new PImage[5];
+  for (int i = 0; i < img_corre.length; i++) {
+    img_corre[i] = loadImage("correr" + i + ".png");
+    if (img_corre[i] == null) {
+      println("Error al cargar imagen de correr: corre" + i + ".png");
+    }
+  }
+
+  // Cargar sprites para saltar
+  img_salto = new PImage[5];
+  for (int i = 0; i < img_salto.length; i++) {
+    img_salto[i] = loadImage("salto" + i + ".png");
+    if (img_salto[i] == null) {
+      println("Error al cargar salto" + i + ".png");
+    } else {
+      println("Imagen salto" + i + ".png cargada correctamente");
+    }
+  }
+
   // Inicializar la lista de objetos del juego
   gameobjetcs = new ArrayList<Gameobjetc>();
   // Inicializar el spawner
-  spawner = new Spawnerobstaculos(gameobjetcs, img_silla, img_mesa);//, img_armario
+  spawner = new Spawnerobstaculos(gameobjetcs, img_silla, img_mesa);
 
-
-  PVector tamaño = new PVector(50, 90);
+  //Inicializar el personaje
+  PVector tamaño = new PVector(60, 110);
   PVector ubicacion = new PVector(10, height-tamaño.y);
-  PImage imagen = loadImage("correr.png");
-  personaje = new Personaje(ubicacion, imagen, tamaño);
+  personaje = new Personaje(ubicacion, img_corre, img_salto, tamaño);
+  //Inicializar Joypad
   joypad= new Joypad();
 }
 
@@ -67,9 +89,6 @@ public void draw() {
       gameobjetcs.add(gameobjetcs.remove(i)); // Mueve el obstáculo al final de la lista
     }
   }
-  
-  
-  
 }// fin de DRAW
 
 // metodo TECLA PRESIONDA

@@ -17,6 +17,4 @@ class Obstaculos extends Gameobjetc {
     public void dibujar() {
     image(imagen, ubicacion.x, ubicacion.y, tamaño.x, tamaño.y);
   }
-
-  
 }
