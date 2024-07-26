@@ -39,17 +39,20 @@ class Personaje extends Gameobjetc {
     this.ubicacion.x+=this.velocidad.x;
     this.ubicacion.y+=this.velocidad.y;
     
-    if(this.ubicacion.y>=200){
-     this.ubicacion.y=200;
+    if(this.ubicacion.y>height-this.tamaño.y){
+     this.ubicacion.y=height-this.tamaño.y;
      this.velocidad.y=0;
      this.saltando=false;
     }
-  }
+    if(this.ubicacion.y<0){
+     this.ubicacion.y=0; 
+    }
+  }// fin mover
   
     public void dibujar(){
     
     fill(#FF0303);
-    rect(this.ubicacion.x, this.ubicacion.y, this.tamaño.x,this,tamaño.y);
+    rect(this.ubicacion.x, this.ubicacion.y, this.tamaño.x,this.tamaño.y);
   }
   
   public void set_ubicacion(PVector ubicacion){
