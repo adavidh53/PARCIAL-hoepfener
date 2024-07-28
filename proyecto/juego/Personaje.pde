@@ -67,6 +67,10 @@ class Personaje extends Gameobjetc {
         }
     }
 
+    public boolean saltando() {
+        return saltando;
+    }
+
     public void reset() {
         ubicacion.y = height - tamaño.y;
         saltando = false;

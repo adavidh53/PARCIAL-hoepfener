@@ -1,3 +1,5 @@
+import processing.sound.*;
+
 // Variables globales
 private Personaje personaje;
 private Joypad joypad;
@@ -8,8 +10,29 @@ PImage[] img_salto;
 Spawnerobstaculos spawner;
 boolean juegoTerminado; // Variable para controlar el estado del juego
 
+// Variables de sonido
+SoundFile sonidoSalto;
+SoundFile sonidoColision;
+
 public void setup() {
   size(600, 600);
+  
+  // Inicializar sistema de sonido
+  sonidoSalto = new SoundFile(this, "salto.wav");
+  sonidoColision = new SoundFile(this, "colision.wav");
+
+  if (sonidoSalto == null) {
+    println("Error al cargar el archivo de sonido: salto.wav");
+  } else {
+    println("Archivo de sonido salto.wav cargado correctamente.");
+  }
+  
+  if (sonidoColision == null) {
+    println("Error al cargar el archivo de sonido: colision.wav");
+  } else {
+    println("Archivo de sonido colision.wav cargado correctamente.");
+  }
+
   // Cargar imágenes de los obstáculos
   img_silla = loadImage("silla.png");
   img_mesa = loadImage("mesa.png");
@@ -27,7 +50,9 @@ public void setup() {
   img_salto = new PImage[5];
   for (int i = 0; i < img_salto.length; i++) {
     img_salto[i] = loadImage("salto" + i + ".png");
-    
+    if (img_salto[i] == null) {
+      println("Error al cargar imagen de salto: salto" + i + ".png");
+    }
   }
 
   // Inicializar la lista de objetos del juego
@@ -37,7 +62,7 @@ public void setup() {
   spawner = new Spawnerobstaculos(gameobjetcs, img_silla, img_mesa);
 
   // Inicializar el personaje
-  PVector tamaño = new PVector(70 , 110);
+  PVector tamaño = new PVector(70, 110);
   PVector ubicacion = new PVector(10, height - tamaño.y);
   personaje = new Personaje(ubicacion, img_corre, img_salto, tamaño);
 
@@ -62,6 +87,12 @@ public void draw() {
 
     // Mover y dibujar el personaje
     personaje.mover(vertical);
+
+    // Verificar si el personaje comienza a saltar
+    if (vertical == 1 && !personaje.saltando()) {  // Comienza a saltar
+      reproducirSonidoSalto();
+    }
+
     personaje.dibujar();
 
     // Generar un nuevo obstáculo si es necesario
@@ -75,6 +106,7 @@ public void draw() {
 
       // Verificar colisión con el personaje
       if (colision(personaje, obj)) {
+        reproducirSonidoColision();
         println("¡Colisión detectada!");
         juegoTerminado = true; // Terminar el juego
       }
@@ -123,5 +155,23 @@ public void keyReleased() {
   }
   if (key == 's' || keyCode == DOWN) {
     joypad.set_presiono_abajo(false);
+  }
+}
+
+// Funciones auxiliares para reproducir sonidos
+void reproducirSonidoSalto() {
+  println("Intentando reproducir sonido de salto..."); // Mensaje de depuración
+  if (!sonidoSalto.isPlaying()) {
+    println("El sonido de salto no se está reproduciendo, iniciando reproducción..."); // Mensaje de depuración
+    sonidoSalto.play();
+    println("Reproducción de sonido de salto iniciada."); // Mensaje de depuración
+  }
+}
+
+void reproducirSonidoColision() {
+  println("Intentando reproducir sonido de colisión..."); // Mensaje de depuración
+  if (!sonidoColision.isPlaying()) {
+    sonidoColision.play();
+    println("Reproducción de sonido de colisión iniciada."); // Mensaje de depuración
   }
 }
