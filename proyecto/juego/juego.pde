@@ -14,24 +14,19 @@ boolean juegoTerminado; // Variable para controlar el estado del juego
 SoundFile sonidoSalto;
 SoundFile sonidoColision;
 
-public void setup() {
+// Variables de puntaje y tiempo
+int tiempoJuego = 0;  // Tiempo total del juego en segundos
+int puntaje = 0;      // Puntos obtenidos por el jugador
+int limiteTiempo = 30; // Tiempo necesario para ganar el juego en segundos
+boolean juegoGanado = false; // Indica si el jugador ha ganado
+int tiempoInicio;     // Para controlar el inicio del cronómetro
+
+void setup() {
   size(600, 600);
-  
-  // Inicializar sistema de sonido
+
+  // Cargar archivos de sonido
   sonidoSalto = new SoundFile(this, "salto.wav");
   sonidoColision = new SoundFile(this, "colision.wav");
-
-  if (sonidoSalto == null) {
-    println("Error al cargar el archivo de sonido: salto.wav");
-  } else {
-    println("Archivo de sonido salto.wav cargado correctamente.");
-  }
-  
-  if (sonidoColision == null) {
-    println("Error al cargar el archivo de sonido: colision.wav");
-  } else {
-    println("Archivo de sonido colision.wav cargado correctamente.");
-  }
 
   // Cargar imágenes de los obstáculos
   img_silla = loadImage("silla.png");
@@ -50,9 +45,6 @@ public void setup() {
   img_salto = new PImage[5];
   for (int i = 0; i < img_salto.length; i++) {
     img_salto[i] = loadImage("salto" + i + ".png");
-    if (img_salto[i] == null) {
-      println("Error al cargar imagen de salto: salto" + i + ".png");
-    }
   }
 
   // Inicializar la lista de objetos del juego
@@ -71,10 +63,13 @@ public void setup() {
 
   // Inicializar estado del juego
   juegoTerminado = false;
+
+  // Inicializar tiempo de inicio
+  tiempoInicio = millis();
 }
 
-public void draw() {
-  if (!juegoTerminado) {
+void draw() {
+  if (!juegoTerminado && !juegoGanado) {
     background(150);
 
     // Determinar el estado del movimiento vertical
@@ -88,8 +83,8 @@ public void draw() {
     // Mover y dibujar el personaje
     personaje.mover(vertical);
 
-    // Verificar si el personaje comienza a saltar
-    if (vertical == 1 && !personaje.saltando()) {  // Comienza a saltar
+    // Reproducir sonido de salto
+    if (vertical == 1 && !personaje.saltando()) {
       reproducirSonidoSalto();
     }
 
@@ -101,28 +96,49 @@ public void draw() {
     // Dibujar y mover los objetos del juego
     for (int i = gameobjetcs.size() - 1; i >= 0; i--) {
       Gameobjetc obj = gameobjetcs.get(i);
-      obj.movimiento_obstaculo(); // Mueve el obstáculo a la izquierda
-      obj.dibujar(); // Dibuja cada objeto
+      obj.movimiento_obstaculo();
+      obj.dibujar();
 
       // Verificar colisión con el personaje
       if (colision(personaje, obj)) {
         reproducirSonidoColision();
-        println("¡Colisión detectada!");
-        juegoTerminado = true; // Terminar el juego
+        juegoTerminado = true;
       }
 
-      // Eliminar el obstáculo si sale de la pantalla
+      // Incrementar puntaje por esquivar obstáculo
       if (obj.ubicacion.x < -obj.tamaño.x) {
         gameobjetcs.remove(i);
+        puntaje += 10;  // Incrementar puntaje por obstáculo esquivado
       }
     }
-  } else {
-    mostrarPantallaFinJuego(); // Mostrar la pantalla de fin de juego
+
+    // Actualizar el tiempo de juego y el puntaje
+    int tiempoActual = millis();
+    if (tiempoActual - tiempoInicio >= 1000) {  // Verifica cada segundo
+      tiempoJuego++;  // Incrementa el tiempo total en segundos
+      puntaje++;      // Incrementa el puntaje por cada segundo sobrevivido
+      tiempoInicio = millis();  // Reinicia el tiempo de inicio
+    }
+
+    // Mostrar el tiempo y el puntaje en pantalla
+    fill(0);
+    textSize(20);
+    text("Tiempo: " + tiempoJuego, 50, 30);
+    text("Puntaje: " + puntaje, 50, 50);
+
+    // Verificar la condición de victoria
+    if (tiempoJuego >= limiteTiempo) {
+      juegoGanado = true;  // Marca el juego como ganado
+    }
+  } else if (juegoTerminado) {
+    mostrarPantallaFinJuego();  // Pantalla de fin de juego
+  } else if (juegoGanado) {
+    mostrarPantallaVictoria();  // Pantalla de victoria
   }
 }
 
 // Método para detectar colisiones entre el personaje y un obstáculo
-private boolean colision(Gameobjetc personaje, Gameobjetc obstaculo) {
+boolean colision(Gameobjetc personaje, Gameobjetc obstaculo) {
   return personaje.ubicacion.x < obstaculo.ubicacion.x + obstaculo.tamaño.x &&
          personaje.ubicacion.x + personaje.tamaño.x > obstaculo.ubicacion.x &&
          personaje.ubicacion.y < obstaculo.ubicacion.y + obstaculo.tamaño.y &&
@@ -130,7 +146,7 @@ private boolean colision(Gameobjetc personaje, Gameobjetc obstaculo) {
 }
 
 // Método para mostrar la pantalla de fin de juego
-private void mostrarPantallaFinJuego() {
+void mostrarPantallaFinJuego() {
   background(0);
   fill(255, 0, 0);
   textSize(50);
@@ -138,8 +154,20 @@ private void mostrarPantallaFinJuego() {
   text("¡Juego Terminado!", width / 2, height / 2);
 }
 
+// Método para mostrar la pantalla de victoria
+void mostrarPantallaVictoria() {
+  background(0, 255, 0);  // Fondo verde para indicar victoria
+  fill(255);  // Color del texto
+  textSize(50);
+  textAlign(CENTER, CENTER);
+  text("¡Ganaste!", width / 2, height / 2);
+  textSize(30);
+  text("Puntuación: " + puntaje, width / 2, height / 2 + 50);
+  text("Tiempo total: " + tiempoJuego + " segundos", width / 2, height / 2 + 100);
+}
+
 // Método TECLA PRESIONADA
-public void keyPressed() {
+void keyPressed() {
   if (key == 'w' || keyCode == UP) {
     joypad.set_presiono_arriba(true);
   }
@@ -149,7 +177,7 @@ public void keyPressed() {
 }
 
 // Método TECLA SIN PRESIONAR
-public void keyReleased() {
+void keyReleased() {
   if (key == 'w' || keyCode == UP) {
     joypad.set_presiono_arriba(false);
   }
@@ -160,18 +188,13 @@ public void keyReleased() {
 
 // Funciones auxiliares para reproducir sonidos
 void reproducirSonidoSalto() {
-  println("Intentando reproducir sonido de salto..."); // Mensaje de depuración
   if (!sonidoSalto.isPlaying()) {
-    println("El sonido de salto no se está reproduciendo, iniciando reproducción..."); // Mensaje de depuración
     sonidoSalto.play();
-    println("Reproducción de sonido de salto iniciada."); // Mensaje de depuración
   }
 }
 
 void reproducirSonidoColision() {
-  println("Intentando reproducir sonido de colisión..."); // Mensaje de depuración
   if (!sonidoColision.isPlaying()) {
     sonidoColision.play();
-    println("Reproducción de sonido de colisión iniciada."); // Mensaje de depuración
   }
 }
