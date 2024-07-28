@@ -1,9 +1,9 @@
 class AnimacionPersonaje {
-  
-  
-  
-  
-  
+
+
+
+
+
   private PImage[] img_corre;
   private PImage[] img_salto;
   private int indiceSprite; // Índice del sprite actual
@@ -68,11 +68,7 @@ class AnimacionPersonaje {
       // Asegurarse de que la imagen no es null antes de dibujar
       if (spritesActuales[indiceSprite] != null) {
         image(spritesActuales[indiceSprite], x, y, ancho, alto);
-      } else {
-        println("Error: Sprite actual es null.");
       }
-    } else {
-      println("Error: Índice de sprite fuera de límites.");
     }
   }
 }

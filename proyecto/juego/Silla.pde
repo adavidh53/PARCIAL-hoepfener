@@ -9,14 +9,12 @@ class Silla extends Gameobjetc {
   }
 
   @Override
-  public void mover(int vertical) {
+    public void mover(int vertical) {
     // Puedes dejarlo vacío si no necesitas mover verticalmente la silla
   }
 
   @Override
-  public void dibujar() {
+    public void dibujar() {
     image(imagen, ubicacion.x, ubicacion.y, tamaño.x, tamaño.y);
   }
-
-  
 }

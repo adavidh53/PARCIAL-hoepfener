@@ -1,75 +1,76 @@
 class Personaje extends Gameobjetc {
-  private PVector velocidad;
-  private boolean saltando;
-  private AnimacionPersonaje animacion; // Objeto de la clase AnimacionPersonaje
+    private boolean saltando;
+    private float velocidadSalto;
+    private float gravedad;
+    private float velocidadVertical;
+    private PImage[] img_corre;
+    private PImage[] img_salto;
+    private int frameActual;
+    private int frameSaltoActual;
+    private int contadorFrames; // Nuevo contador para control de velocidad de animación
+    private int contadorFramesSalto; // Nuevo contador para control de animación de salto
+    private int velocidadAnimacion; 
+    private int velocidadSaltoAnimacion;
 
-  Personaje(PVector ubicacion, PImage[] img_corre, PImage[] img_salto, PVector tamaño) {
-    super(ubicacion, img_corre[0], tamaño); // Usar el primer sprite para inicializar
-    this.velocidad = new PVector(0, 0);
-    this.saltando = false;
-    this.animacion = new AnimacionPersonaje(img_corre, img_salto); // Inicializar la animación
-  }
-
-  public void mover(int vertical) {
-    switch (vertical) {
-    case 1: // Si se presiona 'arriba', el personaje salta
-      if (!saltando) {
-        this.velocidad.y = -15; // Velocidad de salto
-        this.saltando = true;
-        animacion.setEstado(AnimacionPersonaje.ESTADO_SALTO); // Cambiar a estado de salto
-      }
-      break;
-    case 2: // Si se presiona 'abajo', el personaje cae
-      if (!this.saltando) {
-        this.velocidad.y = 15; // Velocidad de caída
-      }
-      break;
-    default: // Movimiento normal con gravedad
-      if (this.saltando) {
-        this.velocidad.y += 0.9; // Gravedad
-      }
-      break;
+    Personaje(PVector ubicacion, PImage[] img_corre, PImage[] img_salto, PVector tamaño) {
+        super(ubicacion, img_corre[0], tamaño);
+        this.img_corre = img_corre;
+        this.img_salto = img_salto;
+        this.saltando = false;
+        this.velocidadSalto = -20;
+        this.gravedad = 0.9;
+        this.velocidadVertical = 0;
+        this.frameActual = 0;
+        this.frameSaltoActual = 0;
+        this.contadorFrames = 0;
+        this.contadorFramesSalto = 0;
+        this.velocidadAnimacion = 5;  // Ajuste para hacer que la animación de correr sea más rápida
+        this.velocidadSaltoAnimacion = 5;  // Ajuste para animación de salto más rápida
     }
 
-    // Actualiza la posición del personaje
-    this.ubicacion.x += this.velocidad.x;
-    this.ubicacion.y += this.velocidad.y;
+    @Override
+    public void mover(int vertical) {
+        if (vertical == 1 && !saltando) {
+            saltando = true;
+            velocidadVertical = velocidadSalto;
+        }
 
-    // Limites del lienzo
-    if (this.ubicacion.y > height - this.tamaño.y-25) {// Ajusta al borde inferior
-      this.ubicacion.y = height - this.tamaño.y-25; // Ajusta la posición al borde inferior
-      this.velocidad.y = 0; // Detiene la caída
-      this.saltando = false; // Resetea el estado de salto
-      animacion.setEstado(AnimacionPersonaje.ESTADO_CORRER); // Volver al estado de correr
+        if (saltando) {
+            velocidadVertical += gravedad;
+            ubicacion.y += velocidadVertical;
+
+            if (ubicacion.y >= height - tamaño.y) {
+                ubicacion.y = height - tamaño.y;
+                saltando = false;
+                velocidadVertical = 0;
+                frameSaltoActual = 0;
+            }
+        }
     }
 
-    // Si se mueve fuera del borde superior, se ajusta la posición
-    if (this.ubicacion.y < 0) {
-      this.ubicacion.y = 0;
-    }
-  }
-
-  @Override
+    @Override
     public void dibujar() {
-    if (animacion != null) {
-      animacion.dibujar(ubicacion.x, ubicacion.y, tamaño.x, tamaño.y);
-    } else {
-      println("Error: animacion es null");
+        if (saltando) {
+            if (contadorFramesSalto >= velocidadSaltoAnimacion) {
+                frameSaltoActual = (frameSaltoActual + 1) % img_salto.length;
+                contadorFramesSalto = 0;
+            }
+            contadorFramesSalto++;
+            image(img_salto[frameSaltoActual], ubicacion.x, ubicacion.y, tamaño.x, tamaño.y);
+        } else {
+            if (contadorFrames >= velocidadAnimacion) {
+                frameActual = (frameActual + 1) % img_corre.length;
+                contadorFrames = 0;
+            }
+            contadorFrames++;
+            image(img_corre[frameActual], ubicacion.x, ubicacion.y, tamaño.x, tamaño.y);
+        }
     }
-  }
-  public void set_ubicacion(PVector ubicacion) {
-    this.ubicacion = ubicacion;
-  }
 
-  public PVector get_ubicacion() {
-    return this.ubicacion;
-  }
-
-  public void set_velocidad(PVector velocidad) {
-    this.velocidad = velocidad;
-  }
-
-  public void movimiento_obstaculo() {
-    // Implementar si es necesario para el personaje
-  }
+    public void reset() {
+        ubicacion.y = height - tamaño.y;
+        saltando = false;
+        velocidadVertical = 0;
+        frameSaltoActual = 0;
+    }
 }
